@@ -1,15 +1,9 @@
-
-
 spring:
   redis:
     #redis数据库名称  从0到15,默认为db0
     database: 0
-    host: 127.0.0.1
     password:
-    port: 6379
-    pool:
-      max-idle: 8
-      min-idle: 0
-      max-active: 8
-      max-wait: -1
-    timeout: 0
+    sentinel:
+      # master的名字是在哨兵进程里定义的
+      master: master
+      nodes: 127.0.0.1:6379,127.0.0.1:6380,127.0.0.1:26379
