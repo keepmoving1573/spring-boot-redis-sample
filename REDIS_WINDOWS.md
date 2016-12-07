@@ -445,3 +445,99 @@ hz 10
 ```
 aof-rewrite-incremental-fsync yes
 ```
+
+**Redis配置集群二（window）**
+
+第一篇那redis的基础命令都差不多讲了一遍了，这篇就将怎么配置集群了，最后要达到的效果是一台主redis，还有几台从的redis，每次数据都是同步的，当主redis挂掉了，那么就会从几台从redis挑选出一台作为主的redis，如果之后刚开始的主redis启动以后，又会变为刚开始的状态，
+
+　　因为要做集群，所以我复制了三分redis，一个是master，两个是slave,端口分别是6379,6480,6381，我们还需要另外一个工具，就是管理这些集群，并且检测的sentinel，其实这个在2.4以后就已经集成到了redis。
+
+　　1.配置主从redis。配置主从其实很简单，我们只要在配置文件redis.windows.conf中配置一个：
+
+```
+slaveof 127.0.0.1 6379//# slaveof <masterip> <masterport>
+```
+
+很明显 前面是IP，后面是端口.然后我们把三个redis都启动：
+master:
+
+```
+[6120] 19 Dec 13:21:08.053 * The server is now ready to accept connections on po
+rt 6379
+[6120] 19 Dec 13:21:43.249 * Slave 127.0.0.1:6380 asks for synchronization
+```
+
+slave-1:
+
+```
+[4272] 19 Dec 13:19:57.225 * The server is now ready to accept connections on po
+rt 6380
+[4272] 19 Dec 13:19:58.219 * Connecting to MASTER 127.0.0.1:6379
+```
+
+slave-2:
+
+```
+[6064] 19 Dec 13:19:13.550 * The server is now ready to accept connections on po
+rt 6381
+[6064] 19 Dec 13:19:14.549 * Connecting to MASTER 127.0.0.1:6379
+```
+
+从日志就可以看出来，主从已经配置好了，接下来就是sentinel的配置：
+
+```
+##sentinel实例之间的通讯端口
+port 26379
+####sentinel需要监控的master信息：<mastername> <masterIP> <masterPort> <quorum>.
+####<quorum>应该小于集群中slave的个数,只有当至少<quorum>个sentinel实例提交"master失效" 才会认为master为ODWON("客观"失效) .
+sentinel monitor mymaster 139.129.7.140 6379 1
+####授权密码，在安全的环境中可以不设置
+sentinel auth-pass mymaster luyx30
+####master被当前sentinel实例认定为“失效”(SDOWN)的间隔时间
+sentinel down-after-milliseconds mymaster 30000
+####当新master产生时，同时进行“slaveof”到新master并进行同步复制的slave个数。
+##在salve执行salveof与同步时，将会终止客户端请求。
+##此值较大，意味着“集群”终止客户端请求的时间总和和较大。
+##此值较小,意味着“集群”在故障转移期间，多个salve向客户端提供服务时仍然使用旧数据。
+sentinel parallel-syncs mymaster 1
+####failover过期时间，当failover开始后，在此时间内仍然没有触发任何failover操作，当前sentinel将会认为此次failoer失败。
+sentinel failover-timeout mymaster 900000
+```
+
+启动sentinel：
+
+```
+[5340] 19 Dec 13:50:03.411 # +monitor master mymaster 127.0.0.1 6379 quorum 1
+[5340] 19 Dec 13:50:04.412 * +slave slave 127.0.0.1:6380 127.0.0.1 6380 @ mymast
+er 127.0.0.1 6379
+[5340] 19 Dec 13:50:04.414 * +slave slave 127.0.0.1:6381 127.0.0.1 6381 @ mymast
+er 127.0.0.1 6379
+```
+
+现在简单的集群已经配好啦，那么我们来试试效果怎么样，首先我在master上
+
+```
+127.0.0.1:6379> set name hotusm
+OK
+127.0.0.1:6379> get name
+"hotusm"
+```
+
+然后在slave-1上：
+
+```
+127.0.0.1:6380> get name
+"hotusm"
+127.0.0.1:6380>
+```
+
+主从没问题，下面我们模拟故障，将master关闭，这是sentinel的日志：
+
+```
+[5340] 19 Dec 13:59:21.377 # +switch-master mymaster 127.0.0.1 6379 127.0.0.1 63
+81
+[5340] 19 Dec 13:59:21.380 * +slave slave 127.0.0.1:6380 127.0.0.1 6380 @ mymast
+er 127.0.0.1 6381
+```
+
+这样，简单的搭建成功啦
