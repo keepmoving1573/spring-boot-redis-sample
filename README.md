@@ -22,6 +22,6 @@ redis
 
 [redis主端口配置](/doc/master/redis.windows.conf)
 
-[redis从端口配置](/doc/sentinel/sentinel.conf)
+[redis从端口配置](/doc/slave/redis.windows.conf)
 
-[redis监控端口配置](/doc/slave/redis.windows.conf)
+[redis监控端口配置](/doc/sentinel/sentinel.conf)
