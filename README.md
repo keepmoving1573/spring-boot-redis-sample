@@ -18,4 +18,10 @@ redis
 ### 相关文档 ###
 [redis的windows配置](REDIS_WINDOWS.md)
 
+### 配置例子 ###
 
+[redis主端口配置](/doc/master/redis.windows.conf)
+
+[redis从端口配置](/doc/sentinel/sentinel.conf)
+
+[redis监控端口配置](/doc/slave/redis.windows.conf)
