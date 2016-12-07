@@ -15,5 +15,7 @@ maven 3.3.9
 spring-boot
 redis
 
+### 相关文档 ###
+![redis的windows配置](REDIS_WINDOWS.md)
 
 
