@@ -10,7 +10,7 @@ public interface RedisService {
 
     void set(Object key, Object value);
 
-    Object get(Object key);
+    <T> T get(Object key, Class<T> clazz);
 
     void setWithTimeout(Object key, Object value, long timeout, TimeUnit timeunit);
 

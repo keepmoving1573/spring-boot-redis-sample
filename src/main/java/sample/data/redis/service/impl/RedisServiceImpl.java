@@ -1,5 +1,6 @@
 package sample.data.redis.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -17,10 +18,10 @@ import java.util.concurrent.TimeUnit;
 public class RedisServiceImpl implements RedisService {
 
     @Autowired
-    RedisTemplate<Object, Object> redisTemplate;
+    private RedisTemplate<Object, Object> redisTemplate;
 
     @Resource(name = "redisTemplate")
-    ValueOperations<Object, Object> valOps;
+    private ValueOperations<Object, Object> valOps;
 
     /**
      * 设置缓存
@@ -29,7 +30,7 @@ public class RedisServiceImpl implements RedisService {
      * @param value 缓存value
      */
     public void set(Object key, Object value) {
-        valOps.set(key, value);
+        valOps.set(key, JSON.toJSONString(value));
     }
 
     /**
@@ -37,9 +38,9 @@ public class RedisServiceImpl implements RedisService {
      *
      * @param key
      */
-    public Object get(Object key) {
-        Object value = valOps.get(key);
-        return value;
+    public <T> T get(Object key, Class<T> clazz) {
+        Object value = JSON.parseObject((String) valOps.get(key), clazz);
+        return (T) value;
     }
 
     /**
@@ -51,7 +52,7 @@ public class RedisServiceImpl implements RedisService {
      * @param timeunit 时间单位
      */
     public void setWithTimeout(Object key, Object value, long timeout, TimeUnit timeunit) {
-        valOps.set(key, value, timeout, timeunit);
+        valOps.set(key, JSON.toJSONString(value), timeout, timeunit);
     }
 
     /**

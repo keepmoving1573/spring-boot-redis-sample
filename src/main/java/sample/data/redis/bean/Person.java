@@ -1,14 +1,10 @@
 package sample.data.redis.bean;
 
-import java.io.Serializable;
-
 /**
  * @author <a href="mailto:heikehuan@sina.com">詹欢欢</a>
  * @since 2016/10/26 - 22:41
  */
-public class Person implements Serializable {
-
-    private static final long serialVersionUID = -6581670973971319289L;
+public class Person {
 
     private String id;
     private String name;
@@ -16,12 +12,6 @@ public class Person implements Serializable {
 
     public String getId() {
         return id;
-    }
-
-    public Person(String id, String name, Integer age) {
-        this.id = id;
-        this.name = name;
-        this.age = age;
     }
 
     public void setId(String id) {

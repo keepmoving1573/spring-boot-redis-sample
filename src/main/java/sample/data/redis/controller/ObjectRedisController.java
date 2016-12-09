@@ -20,14 +20,17 @@ public class ObjectRedisController {
     private RedisService redisService;
 
     @GetMapping("setObject")
-    public Object setDataToRedis(String id, String name, Integer age) {
-        Person person=new Person(id,name,age);
+    public String setDataToRedis(String id, String name, Integer age) {
+        Person person = new Person();
+        person.setId(id);
+        person.setAge(age);
+        person.setName(name);
         redisService.set(id, person);
         return "success";
     }
 
     @GetMapping("getObject")
-    public Object getDataFromRedis(String id) {
-        return redisService.get(id);
+    public Person getDataFromRedis(String id) {
+        return redisService.get(id, Person.class);
     }
 }
