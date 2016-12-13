@@ -8,13 +8,13 @@ import java.util.concurrent.TimeUnit;
  */
 public interface RedisService {
 
-    void set(Object key, Object value);
+    void set(String key, Object value);
 
-    <T> T get(Object key, Class<T> clazz);
+    <T> T get(String key, Class<T> clazz);
 
-    void setWithTimeout(Object key, Object value, long timeout, TimeUnit timeunit);
+    void setWithTimeout(String key, Object value, long timeout, TimeUnit timeunit);
 
-    void delete(Object key);
+    void delete(String key);
 
 
 }

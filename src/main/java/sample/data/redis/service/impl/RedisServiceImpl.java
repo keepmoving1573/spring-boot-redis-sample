@@ -2,7 +2,7 @@ package sample.data.redis.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import sample.data.redis.service.RedisService;
@@ -17,11 +17,16 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class RedisServiceImpl implements RedisService {
 
-    @Autowired
+    /*@Autowired
     private RedisTemplate<Object, Object> redisTemplate;
 
     @Resource(name = "redisTemplate")
-    private ValueOperations<Object, Object> valOps;
+    private ValueOperations<Object, Object> valOps;*/
+
+    @Resource(name = "stringRedisTemplate")
+    ValueOperations<String, String> valOps;
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     /**
      * 设置缓存
@@ -29,7 +34,7 @@ public class RedisServiceImpl implements RedisService {
      * @param key   缓存key
      * @param value 缓存value
      */
-    public void set(Object key, Object value) {
+    public void set(String key, Object value) {
         valOps.set(key, JSON.toJSONString(value));
     }
 
@@ -38,7 +43,7 @@ public class RedisServiceImpl implements RedisService {
      *
      * @param key
      */
-    public <T> T get(Object key, Class<T> clazz) {
+    public <T> T get(String key, Class<T> clazz) {
         Object value = JSON.parseObject((String) valOps.get(key), clazz);
         return (T) value;
     }
@@ -51,7 +56,7 @@ public class RedisServiceImpl implements RedisService {
      * @param timeout  过期时间
      * @param timeunit 时间单位
      */
-    public void setWithTimeout(Object key, Object value, long timeout, TimeUnit timeunit) {
+    public void setWithTimeout(String key, Object value, long timeout, TimeUnit timeunit) {
         valOps.set(key, JSON.toJSONString(value), timeout, timeunit);
     }
 
@@ -60,7 +65,7 @@ public class RedisServiceImpl implements RedisService {
      *
      * @param key
      */
-    public void delete(Object key) {
+    public void delete(String key) {
         redisTemplate.delete(key);
     }
 
