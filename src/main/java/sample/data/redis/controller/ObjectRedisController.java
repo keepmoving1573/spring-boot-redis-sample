@@ -22,17 +22,27 @@ public class ObjectRedisController {
 
     @GetMapping("setObject")
     public String setDataToRedis(String id, String name, Integer age) {
-        Person person = new Person();
-        person.setId(id);
-        person.setAge(age);
-        person.setName(name);
-        redisService.set(id, person);
-        return "success";
+        try {
+            Person person = new Person();
+            person.setId(id);
+            person.setAge(age);
+            person.setName(name);
+            redisService.set(id, person);
+            return "success";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redis connection error";
+        }
     }
 
     @GetMapping("getObject")
-    public Person getDataFromRedis(String id) {
-        return redisService.get(id, Person.class);
+    public Person getDataFromRedis(String id) throws Exception {
+        try {
+            return redisService.get(id, Person.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Exception("redis服务down了");
+        }
     }
 
     @DeleteMapping("deleteObject")
